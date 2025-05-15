@@ -43,3 +43,5 @@ end
 gem "jwt"
 
 gem "rspec-rails"
+
+gem "pundit"

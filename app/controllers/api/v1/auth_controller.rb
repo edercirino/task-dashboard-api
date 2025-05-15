@@ -30,6 +30,8 @@ module Api
       end
 
       def update
+        authorize @current_user
+
         if @current_user.update(user_params)
           render json: { user: @current_user }, status: :ok
         else
@@ -40,6 +42,9 @@ module Api
       end
 
       def destroy
+        user = User.find([ :id ])
+        authorize user
+
         if @user.email == "admin01@example.com"
           render json: { error: "This user cannot be deleted." }, status: :forbideen
         else
@@ -56,7 +61,7 @@ module Api
       end
 
       def user_params
-        params.require(:user).permit(:name, :email, :password, :password_confirmation)
+        params.require(:user).permit(:role, :name, :email, :password, :password_confirmation)
       end
     end
   end

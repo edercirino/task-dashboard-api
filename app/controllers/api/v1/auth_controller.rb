@@ -8,7 +8,7 @@ module Api
         if user&.authenticate(params[:password])
         token = jwt_encode(user_id: user.id)
         render json:
-        { token:, user: { id: user.id, name: user.name, email: user.email } },
+        { token:, user: { id: user.id, role: user.role, name: user.name, email: user.email } },
         status: :ok
         else
           render json: { error: "Invalid email or password" }, status: :unauthorized
@@ -20,9 +20,15 @@ module Api
 
         if user.save
           token = jwt_encode(user_id: user.id)
-          render json:
-          { token:, user: { id: user.id, name: user.name, email: user.email } },
-          status: :created
+          render json: {
+            token:,
+            user: {
+              id: user.id,
+              role: user.role,
+              name: user.name,
+              email: user.email
+            }
+          }, status: :created
         else
           render json:
           { errors: user.errors.full_messages }, status: :unprocessable_entity

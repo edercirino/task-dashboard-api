@@ -51,10 +51,10 @@ module Api
         user = User.find([ :id ])
         authorize user
 
-        if @user.email == "admin01@example.com"
+        if user.email == "admin01@example.com"
           render json: { error: "This user cannot be deleted." }, status: :forbideen
         else
-          @user.destroy
+          user.destroy
           render json: { message: "User deleted successfully" }
         end
       end

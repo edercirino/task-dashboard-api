@@ -1,5 +1,5 @@
 class ApplicationController < ActionController::API
-  include Pundit
+  include Pundit::Authorization
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
   private
@@ -18,5 +18,9 @@ class ApplicationController < ActionController::API
     rescue ActiveRecord::RecordNotFound, JWT::DecodeError
       render json: { errors: [ "Unauthorized" ] }, status: :unauthorized
     end
+  end
+
+  def current_user
+    @current_user
   end
 end

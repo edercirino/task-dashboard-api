@@ -1,6 +1,6 @@
 module Api
   module V1
-    class Api::V1::AuthController < ApplicationController
+    class AuthController < ApplicationController
       before_action :authorize_request, only: [ :update ]
       def login
         user = User.find_by(email: params[:email])
@@ -36,7 +36,7 @@ module Api
       end
 
       def update
-        authorize @current_user
+        authorize @current_user, policy_class: UserPolicy
 
         if @current_user.update(user_params)
           render json: { user: @current_user }, status: :ok
@@ -48,11 +48,11 @@ module Api
       end
 
       def destroy
-        user = User.find([ :id ])
+        user = User.find(params[:id])
         authorize user
 
         if user.email == "admin01@example.com"
-          render json: { error: "This user cannot be deleted." }, status: :forbideen
+          render json: { error: "This user cannot be deleted." }, status: :forbidden
         else
           user.destroy
           render json: { message: "User deleted successfully" }
@@ -67,7 +67,9 @@ module Api
       end
 
       def user_params
-        params.require(:user).permit(:role, :name, :email, :password, :password_confirmation)
+        allowed = [ :name, :email, :password, :password_confirmation ]
+        allowed << :role if @current_user.role =="admin"
+        params.require(:user).permit(allowed)
       end
     end
   end

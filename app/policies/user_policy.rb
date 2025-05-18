@@ -1,12 +1,7 @@
 class UserPolicy < ApplicationPolicy
   attr_reader :user, :record
 
-  def initialize(user, record)
-    @user = user
-    @record = record
-  end
-
-  def update
+  def update?
     if record.email == "admin01@example.com"
       user.email == "admin01@example.com"
     else
@@ -14,7 +9,7 @@ class UserPolicy < ApplicationPolicy
     end
   end
 
-  def destroy
+  def destroy?
     return false if record.email == "admin01@example.com"
     user.admin?
   end

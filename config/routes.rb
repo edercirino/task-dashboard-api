@@ -4,6 +4,8 @@ Rails.application.routes.draw do
       post "login", to: "auth#login"
       post "signup", to: "auth#register"
       patch "profile", to: "auth#update"
+
+      resources :users, only: [ :index, :create, :update, :destroy, :show ]
     end
   end
 end

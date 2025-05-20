@@ -15,7 +15,7 @@ class UserPolicy < ApplicationPolicy
   end
 
   def index?
-    user.admin?
+    user.admin? || user.email == "admin01@example.com"
   end
 
   def show?

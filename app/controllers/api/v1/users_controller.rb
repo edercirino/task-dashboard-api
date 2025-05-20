@@ -3,9 +3,9 @@ class Api::V1::UsersController < ApplicationController
   before_action :set_user, only: [ :show, :update, :destroy ]
 
   def index
-    authorize User
-    users = User.all
-    render json: users
+    authorize User, :index?, policy_class: UsersPolicy
+    users = User.all.order(:name)
+    render json: users, status: :ok
   end
 
   def show

@@ -3,7 +3,7 @@ class Api::V1::UsersController < ApplicationController
   before_action :set_user, only: [ :show, :update, :destroy ]
 
   def index
-    authorize User, :index?, policy_class: UsersPolicy
+    authorize User, :index?, policy_class: UserPolicy
     users = User.all.order(:name)
     render json: users, status: :ok
   end

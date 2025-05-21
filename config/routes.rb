@@ -5,7 +5,9 @@ Rails.application.routes.draw do
       post "signup", to: "auth#register"
       patch "profile", to: "auth#update"
 
-      resources :users, only: [ :index, :create, :update, :destroy, :show ]
+      resources :users, only: [ :index, :show, :create, :update, :destroy  ] do
+        resources :tasks, only: [ :index, :show, :create, :update, :destroy ]
+      end
     end
   end
 end

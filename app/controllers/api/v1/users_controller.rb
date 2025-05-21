@@ -9,8 +9,12 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def show
-    authorize @user
-    render json: @user
+    user = User.find(params[:id])
+    authorize user
+    render json: {
+      user: user,
+      tasks: user.tasks
+    }, status: :ok
   end
 
   def create

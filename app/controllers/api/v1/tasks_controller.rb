@@ -23,6 +23,11 @@ class Api::V1::TasksController < ApplicationController
 
   def update
     if @task.update(task_params)
+      if task_params[:status] == "done" && @task.completed_at.nil?
+        @task.update(completed_at: Time.current)
+      elsif task_params[:status] == "pending"
+        @task.update(completed_at: nil)
+      end
       render json: @task
     else
       render json: { errors: @task.errors.full_messages }, status: :unprocessable_entity

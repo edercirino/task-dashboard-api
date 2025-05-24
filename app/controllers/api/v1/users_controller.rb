@@ -31,10 +31,16 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def update
+    user = User.find(params[:id])
     authorize @user
 
+    if user.email == "admin01@example.com" && user != current_user
+      render json: { error: "You can't change the master admin's data" }, status: :forbidden
+      return
+    end
+
     if @user.update(user_params)
-      render json: @user
+      render json: { message: "User update successfully", user: user }, status: :ok
     else
       render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
     end

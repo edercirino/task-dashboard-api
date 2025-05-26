@@ -1,6 +1,7 @@
 class Api::V1::TasksController < ApplicationController
   before_action :authorize_request
   before_action :set_user
+  before_action :authorize_admin!
   before_action :set_task, only: [ :show, :update, :destroy ]
 
   def index
@@ -45,11 +46,21 @@ class Api::V1::TasksController < ApplicationController
     @user = User.find(params[:user_id])
   end
 
+  def authorize_admin!
+    unless @current_user.admin?
+      render json: { error: "Only admins can create tasks for other users" }, status: :forbidden
+    end
+  end
+
   def set_task
     @task = @user.tasks.find(params[:id])
   end
 
   def task_params
-    params.require(:task).permit(:title, :description, :status)
+    if params[:task]
+      params.require(:task).permit(:title, :description, :status)
+    else
+      params.permit(:title, :description, :status)
+    end
   end
 end

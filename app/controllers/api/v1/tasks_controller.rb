@@ -1,20 +1,30 @@
 class Api::V1::TasksController < ApplicationController
+  include Pundit
+
   before_action :authorize_request
-  before_action :set_user
-  before_action :authorize_admin!
+  before_action :set_user, only: [ :create ]
   before_action :set_task, only: [ :show, :update, :destroy ]
 
   def index
-    @tasks = @user.tasks
-    render json: @user.tasks
+    if current_user.admin? && params[:user_id].present?
+      user = User.find(params[:user_id])
+      @tasks = policy_scope(Task).where(user_id: user.id)
+    else
+      @tasks = policy_scope(Task)
+    end
+  render json: @tasks
   end
 
   def show
-    render json: @task
+    authorize @task
+    @task = Task.includes(:user).find(params[:id])
+    render json: @task.as_json(include: { user: { only: [ :id, :name ] } })
   end
 
   def create
     @task = @user.tasks.build(task_params)
+    authorize @task
+
     if @task.save
       render json: @task, status: :created
     else
@@ -23,6 +33,7 @@ class Api::V1::TasksController < ApplicationController
   end
 
   def update
+    authorize @task
     if @task.update(task_params)
       if task_params[:status] == "done" && @task.completed_at.nil?
         @task.update(completed_at: Time.current)
@@ -36,6 +47,7 @@ class Api::V1::TasksController < ApplicationController
   end
 
   def destroy
+    authorize @task
     @task.destroy
     head :no_content
   end
@@ -44,23 +56,17 @@ class Api::V1::TasksController < ApplicationController
 
   def set_user
     @user = User.find(params[:user_id])
-  end
 
-  def authorize_admin!
-    unless @current_user.admin?
-      render json: { error: "Only admins can create tasks for other users" }, status: :forbidden
+    unless current_user.admin? || current_user.id == @user.id
+      render json: { error: "Not authorized to access this task" }, status: :forbidden
     end
   end
 
   def set_task
-    @task = @user.tasks.find(params[:id])
+    @task = Task.find(params[:id])
   end
 
   def task_params
-    if params[:task]
       params.require(:task).permit(:title, :description, :status)
-    else
-      params.permit(:title, :description, :status)
-    end
   end
 end

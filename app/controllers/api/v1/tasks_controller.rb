@@ -12,6 +12,11 @@ class Api::V1::TasksController < ApplicationController
     else
       @tasks = policy_scope(Task)
     end
+
+    if params[:query].present?
+      @tasks = @tasks.where("title ILIKE ?", "%#{params[:query]}%")
+    end
+
   render json: @tasks
   end
 

@@ -5,6 +5,9 @@ class Api::V1::UsersController < ApplicationController
   def index
     authorize User, :index?, policy_class: UserPolicy
     users = User.all.order(:name)
+    if params[:query].present?
+      users = users.where("name ILIKE ? OR email ILIKE ?", "%#{params[:query]}%", "%#{params[:query]}%")
+    end
     render json: users, status: :ok
   end
 
